@@ -18,7 +18,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(message)s', date
 
 ERROR_MAPPING = {'NXDOMAIN': 0, 'Found' : 1, 'NoAnswer': 2, 'NoNameservers': 3, 'Timeout': 4, 'Unknown': 5}
 
-i_dnsrbl = Info('dnsrbl_info', 'General info')
+i_dnsrbl = Info('dnsrbl', 'General info')
 e_dnsrbl_task_state = Enum('dnsrbl_task_state', 'Task state', states=['running', 'sleeping'])
 g_dnsrbl_list_size =  Gauge('dnsrbl_list_size', 'number of blacklists active')
 
@@ -80,12 +80,18 @@ def convert_to_reverse_ip(ip):
 
 def get_external_ip():
     """A dummy function that takes some time."""
-    if os.getenv('DNSRBL_CHECK_IP', None)  != None:
-        return os.getenv('DNSRBL_CHECK_IP')
     http = urllib3.PoolManager()
     r = http.request('GET', 'http://ifconfig.co/json')
     result = json.loads(r.data.decode('utf-8'))
     return result['ip']
+
+def get_static_ip():
+    return os.getenv('DNSRBL_CHECK_IP')
+
+def get_check_ip_mode():
+    if os.getenv('DNSRBL_CHECK_IP', None)  != None:
+        return 'static'
+    return 'dynamic'
 
 def get_lists():
     if os.getenv('DNSRBL_LISTS', None)  != None:
@@ -107,19 +113,26 @@ def get_delay_between_requests():
 def get_delay_between_runs():
     return int(os.getenv('DNSRBL_DELAY_RUNS', 60))
 
+def get_lisener_port():
+    return int(os.getenv('DNSRBL_PORT', 8000))
+
 if __name__ == '__main__':
     # Start up the server to expose the metrics.
-    start_http_server(8000)
+    start_http_server(get_lisener_port())
     # Generate some requests.
     while True:
-        external_ip = get_external_ip()
-        logging.info("Using {} as external ip".format(external_ip))
-        dnsrbl_lists = get_lists()        
+        if (get_check_ip_mode() == 'dynamic'):
+            check_ip = get_external_ip()
+        else:
+            check_ip = get_static_ip()
+        logging.info("Using {} as {} check ip".format(check_ip, get_check_ip_mode()))
+        dnsrbl_lists = get_lists()     
         g_dnsrbl_list_size.set(len(dnsrbl_lists))
         logging.info("Using {} blacklists".format(len(dnsrbl_lists)))
         i_dnsrbl.info(
             {
-                'external_ip' : external_ip, 
+                'check_ip' : check_ip,
+                'check_ip_mode' : get_check_ip_mode(),
                 'delay_between_requests' : '{}s'.format(get_delay_between_requests()),
                 'delay_between_runs' : '{}s'.format(get_delay_between_runs()) 
             }
@@ -129,7 +142,7 @@ if __name__ == '__main__':
             if blacklist.startswith( '#' ):
                 continue
             e_dnsrbl_task_state.state('running')
-            check_dnsrbl(external_ip, blacklist)
+            check_dnsrbl(check_ip, blacklist)
             e_dnsrbl_task_state.state('sleeping')
             logging.debug("sleeping...")
             time.sleep( get_delay_between_requests() )
