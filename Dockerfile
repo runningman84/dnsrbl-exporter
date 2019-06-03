@@ -14,6 +14,6 @@ RUN pip3 install .
 
 USER nobody
 
-ENTRYPOINT ["/sbin/tini"]
+ENTRYPOINT ["/sbin/tini", "--"]
 
 CMD [ "python3", "exporter.py" ]
