@@ -38,5 +38,6 @@ DNSRBL_PORT | Listener port for metric server | 8000
 
 Finally
 ----
-You can integrate dnsrbl-exporter with my helm chart and run it in a kubernetes cluster.
+You can integrate dnsrbl-exporter with my helm chart and run it in a kubernetes cluster:
+https://github.com/runningman84/helm-charts/tree/master/dnsrbl-exporter
 
