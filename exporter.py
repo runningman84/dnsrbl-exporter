@@ -81,9 +81,13 @@ def convert_to_reverse_ip(ip):
 def get_external_ip():
     """A dummy function that takes some time."""
     http = urllib3.PoolManager()
-    r = http.request('GET', 'http://ifconfig.co/json')
-    result = json.loads(r.data.decode('utf-8'))
-    return result['ip']
+
+    #r = http.request('GET', 'http://ifconfig.co/json')
+    #result = json.loads(r.data.decode('utf-8'))
+    #return result['ip']
+
+    r = http.request('GET', 'http://ifconfig.me')
+    return r.data.decode('utf-8')
 
 def get_static_ip():
     return os.getenv('DNSRBL_CHECK_IP')
@@ -105,7 +109,7 @@ def get_lists():
     return dnsrbl_lists
 
 def get_httpbl_access_key():
-    return os.getenv('DNSRBL_HTTP_BL_ACCESS_KEY', None) 
+    return os.getenv('DNSRBL_HTTP_BL_ACCESS_KEY', None)
 
 def get_delay_between_requests():
     return int(os.getenv('DNSRBL_DELAY_REQUESTS', 1))
@@ -126,7 +130,7 @@ if __name__ == '__main__':
         else:
             check_ip = get_static_ip()
         logging.info("Using {} as {} check ip".format(check_ip, get_check_ip_mode()))
-        dnsrbl_lists = get_lists()     
+        dnsrbl_lists = get_lists()
         g_dnsrbl_list_size.set(len(dnsrbl_lists))
         logging.info("Using {} blacklists".format(len(dnsrbl_lists)))
         i_dnsrbl.info(
@@ -134,10 +138,10 @@ if __name__ == '__main__':
                 'check_ip' : check_ip,
                 'check_ip_mode' : get_check_ip_mode(),
                 'delay_between_requests' : '{}s'.format(get_delay_between_requests()),
-                'delay_between_runs' : '{}s'.format(get_delay_between_runs()) 
+                'delay_between_runs' : '{}s'.format(get_delay_between_runs())
             }
         )
-    
+
         for blacklist in dnsrbl_lists:
             if blacklist.startswith( '#' ):
                 continue
