@@ -17,3 +17,5 @@ USER nobody
 ENTRYPOINT ["/sbin/tini", "--"]
 
 CMD [ "python3", "exporter.py" ]
+
+EXPOSE 8000
