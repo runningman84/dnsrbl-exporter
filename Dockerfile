@@ -1,21 +1,15 @@
-FROM alpine:3.8
+FROM python:3-alpine
 MAINTAINER Philipp Hellmich <phil@hellmi.de>
 
-RUN apk add --no-cache tini python3 python3-dev build-base && \
-    mkdir /app
+WORKDIR /usr/src/app
 
-WORKDIR /app
+COPY requirements.txt ./
+RUN pip install --no-cache-dir -r requirements.txt
 
-COPY setup.py /app
-COPY exporter.py /app
-COPY lists.txt /app
-
-RUN pip3 install .
+COPY . .
 
 USER nobody
 
-ENTRYPOINT ["/sbin/tini", "--"]
-
-CMD [ "python3", "exporter.py" ]
+CMD [ "python", "./exporter.py" ]
 
 EXPOSE 8000

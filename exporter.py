@@ -46,7 +46,7 @@ def check_dnsrbl(ip, blacklist):
 
     logging.info("checking {}.{}.".format(reverse_ip,blacklist))
     try:
-        answers = dns.resolver.query(query, 'A')
+        answers = dns.resolver.resolve(query, 'A')
         for rdata in answers:
             result = str(rdata)
             logging.warning("match: {} found in {}".format(result, blacklist))
