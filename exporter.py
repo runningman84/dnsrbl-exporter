@@ -16,7 +16,7 @@ from pprint import pprint
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(message)s', datefmt='%d-%b-%y %H:%M:%S')
 
-ERROR_MAPPING = {'NXDOMAIN': 0, 'Found' : 1, 'NoAnswer': 2, 'NoNameservers': 3, 'Timeout': 4, 'Unknown': 5}
+ERROR_MAPPING = {'NXDOMAIN': 0, 'Found' : 1, 'NoAnswer': 2, 'NoNameservers': 3, 'Timeout': 4, 'Unknown': 5, 'LifetimeTimeout': 4}
 
 i_dnsrbl = Info('dnsrbl', 'General info')
 e_dnsrbl_task_state = Enum('dnsrbl_task_state', 'Task state', states=['running', 'sleeping'])
@@ -61,7 +61,7 @@ def check_dnsrbl(ip, blacklist):
         g_dnsrbl_query.labels(list=blacklist,ip=ip,result='Found').inc()
         g_dnsrbl_status.labels(list=blacklist,ip=ip).set(ERROR_MAPPING['Found'])
 
-    except (dns.resolver.NXDOMAIN, dns.resolver.NoAnswer, dns.resolver.NoNameservers, dns.resolver.Timeout, ) as error:
+    except (dns.resolver.NXDOMAIN, dns.resolver.NoAnswer, dns.resolver.NoNameservers, dns.resolver.Timeout) as error:
         logging.info("error: {}".format(error.__class__.__name__))
         g_dnsrbl_query.labels(list=blacklist,ip=ip,result=error.__class__.__name__).inc()
         g_dnsrbl_status.labels(list=blacklist,ip=ip).set(ERROR_MAPPING[error.__class__.__name__])
