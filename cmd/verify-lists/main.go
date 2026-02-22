@@ -31,7 +31,7 @@ func main() {
 
 		total++
 		fmt.Printf("Testing %s... ", line)
-		
+
 		if checkDNSBL(line) {
 			fmt.Println("✓ OK")
 			working = append(working, line)
@@ -63,15 +63,15 @@ func checkDNSBL(blacklist string) bool {
 	// Use 127.0.0.2 as test IP - should return NXDOMAIN for most lists
 	// We're just checking if the DNS server responds
 	testQuery := fmt.Sprintf("2.0.0.127.%s", blacklist)
-	
+
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	resolver := &net.Resolver{}
-	
+
 	// Try to resolve - we don't care about the result, just that we get a DNS response
 	_, err := resolver.LookupIP(ctx, "ip4", testQuery)
-	
+
 	// NXDOMAIN (not found) is actually a good response - it means the DNS server is working
 	if err != nil {
 		if dnsErr, ok := err.(*net.DNSError); ok {
@@ -87,11 +87,11 @@ func checkDNSBL(blacklist string) bool {
 		// Try a direct NS lookup as fallback
 		ctx2, cancel2 := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel2()
-		
+
 		_, err2 := resolver.LookupNS(ctx2, blacklist)
 		return err2 == nil
 	}
-	
+
 	// Got an IP response - that's also good
 	return true
 }

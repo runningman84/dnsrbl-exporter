@@ -146,8 +146,8 @@ dnsbl.sorbs.net`,
 		},
 		{
 			name: "with whitespace",
-			content: `  zen.spamhaus.org  
-	dnsbl.sorbs.net	
+			content: `  zen.spamhaus.org
+	dnsbl.sorbs.net
    bl.spamcop.net   `,
 			expected:    []string{"zen.spamhaus.org", "dnsbl.sorbs.net", "bl.spamcop.net"},
 			shouldError: false,
@@ -208,7 +208,7 @@ func TestLoadConfig_StaticIP(t *testing.T) {
 	os.Setenv("DNSRBL_DELAY_RUNS", "120")
 	os.Setenv("DNSRBL_PORT", "9000")
 	os.Setenv("DNSRBL_LISTS", "zen.spamhaus.org dnsbl.sorbs.net")
-	
+
 	defer func() {
 		os.Unsetenv("DNSRBL_CHECK_IP")
 		os.Unsetenv("DNSRBL_DELAY_REQUESTS")

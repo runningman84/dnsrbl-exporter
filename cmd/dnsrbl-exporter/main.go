@@ -113,9 +113,9 @@ type Config struct {
 
 func main() {
 	log.SetFlags(log.LstdFlags)
-	
+
 	config := loadConfig()
-	
+
 	// Start Prometheus HTTP server
 	http.Handle("/metrics", promhttp.Handler())
 	go func() {
@@ -318,7 +318,7 @@ func handleDNSError(err error, blacklist, ip string) {
 
 	log.Printf("Error: %s", errorType)
 	dnsrblQuery.WithLabelValues(blacklist, ip, errorType).Inc()
-	
+
 	if val, ok := errorMapping[errorType]; ok {
 		dnsrblStatus.WithLabelValues(blacklist, ip).Set(val)
 	} else {
@@ -370,19 +370,19 @@ func getExternalIP() (string, error) {
 
 		body, err := io.ReadAll(resp.Body)
 		resp.Body.Close()
-		
+
 		if err != nil {
 			lastErr = err
 			continue
 		}
 
 		ip := strings.TrimSpace(string(body))
-		
+
 		// Validate that we got an IP address, not HTML
 		if net.ParseIP(ip) != nil {
 			return ip, nil
 		}
-		
+
 		lastErr = fmt.Errorf("invalid IP address received: %s", ip)
 	}
 
