@@ -1,0 +1,42 @@
+# Git
+.git
+.gitignore
+.gitattributes
+.gitmessage
+
+# GitHub
+.github
+
+# Documentation
+README.md
+CHANGELOG.md
+LICENSE
+
+# Test files
+*_test.go
+*.test
+coverage.out
+coverage.html
+
+# Build artifacts
+/dnsrbl-exporter
+/verify-lists
+*.tar.gz
+*.sha256
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# CI/CD
+.releaserc.js
+commitlint.config.js
+
+# Helm
+helm/
+
+# Dependencies (will be downloaded in build)
+vendor/
