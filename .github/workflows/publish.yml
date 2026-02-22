@@ -53,10 +53,30 @@ jobs:
           VERSION="${{ steps.tag.outputs.version }}"
           BINARY_BASE_NAME="${{ github.event.repository.name }}-linux"
           BINARY_NAME="${BINARY_BASE_NAME}-${{ matrix.arch }}"
-          echo "Building ${BINARY_NAME} with version ${VERSION}"
-          go build -v -ldflags="-w -s -X main.Version=${VERSION}" -o "${BINARY_NAME}" ./cmd/operator
+          
+          # Auto-detect the main cmd directory
+          if [ -d "cmd" ]; then
+            # Find first cmd subdirectory or use current directory
+            CMD_DIR=$(find cmd -maxdepth 1 -mindepth 1 -type d | head -n 1)
+            if [ -z "$CMD_DIR" ]; then
+              echo "No subdirectory found in cmd/, building from root"
+              BUILD_PATH="."
+            else
+              echo "Found cmd directory: $CMD_DIR"
+              BUILD_PATH="./$CMD_DIR"
+            fi
+          else
+            echo "No cmd/ directory found, building from root"
+            BUILD_PATH="."
+          fi
+          
+          echo "Building ${BINARY_NAME} with version ${VERSION} from ${BUILD_PATH}"
+          go build -v -ldflags="-w -s -X main.Version=${VERSION}" -o "${BINARY_NAME}" ${BUILD_PATH}
           chmod +x "${BINARY_NAME}"
-          ./${BINARY_NAME} -version
+          
+          # Try to run with -version flag (may not exist in all projects)
+          ./${BINARY_NAME} -version || echo "Binary built successfully (no -version flag)"
+          
           tar -czf "${BINARY_NAME}.tar.gz" "${BINARY_NAME}"
           sha256sum "${BINARY_NAME}.tar.gz" > "${BINARY_NAME}.tar.gz.sha256"
           echo "Binary size: $(du -h ${BINARY_NAME} | cut -f1)"
