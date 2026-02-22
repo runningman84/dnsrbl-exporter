@@ -1,3 +1,10 @@
+# [1.2.0](https://github.com/runningman84/dnsrbl-exporter/compare/v1.1.0...v1.2.0) (2026-02-22)
+
+
+### Features
+
+* improve tests and docs ([86dd3bc](https://github.com/runningman84/dnsrbl-exporter/commit/86dd3bc2e3cd44d906839bba5a8927d356ee515c))
+
 # [1.1.0](https://github.com/runningman84/dnsrbl-exporter/compare/v1.0.0...v1.1.0) (2026-02-22)
 
 
