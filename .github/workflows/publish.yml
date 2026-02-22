@@ -52,35 +52,69 @@ jobs:
         run: |
           VERSION="${{ steps.tag.outputs.version }}"
           BINARY_BASE_NAME="${{ github.event.repository.name }}-linux"
-          BINARY_NAME="${BINARY_BASE_NAME}-${{ matrix.arch }}"
+          ARCHIVE_NAME="${BINARY_BASE_NAME}-${{ matrix.arch }}"
 
-          # Auto-detect the main cmd directory
+          # Find all cmd directories
           if [ -d "cmd" ]; then
-            # Find first cmd subdirectory or use current directory
-            CMD_DIR=$(find cmd -maxdepth 1 -mindepth 1 -type d | head -n 1)
-            if [ -z "$CMD_DIR" ]; then
-              echo "No subdirectory found in cmd/, building from root"
-              BUILD_PATH="."
+            echo "📦 Scanning cmd/ directory for main packages..."
+            CMD_DIRS=($(find cmd -maxdepth 1 -mindepth 1 -type d | sort))
+
+            if [ ${#CMD_DIRS[@]} -eq 0 ]; then
+              echo "No subdirectories found in cmd/, building from root"
+              BINARY_NAME="${ARCHIVE_NAME}"
+              echo "Building ${BINARY_NAME} with version ${VERSION}"
+              go build -v -ldflags="-w -s -X main.Version=${VERSION}" -o "${BINARY_NAME}" .
+              chmod +x "${BINARY_NAME}"
             else
-              echo "Found cmd directory: $CMD_DIR"
-              BUILD_PATH="./$CMD_DIR"
+              echo "✓ Found ${#CMD_DIRS[@]} cmd directories:"
+              for dir in "${CMD_DIRS[@]}"; do
+                echo "   - $dir"
+              done
+              echo ""
+
+              # Build each cmd as a separate binary
+              for CMD_DIR in "${CMD_DIRS[@]}"; do
+                CMD_NAME=$(basename "$CMD_DIR")
+                BINARY_NAME="${CMD_NAME}"
+
+                echo "📦 Building ${BINARY_NAME} (${GOARCH}) with version ${VERSION} from ${CMD_DIR}"
+                go build -v -ldflags="-w -s -X main.Version=${VERSION}" -o "${BINARY_NAME}" "./${CMD_DIR}"
+                chmod +x "${BINARY_NAME}"
+
+                # Try to run with -version flag (may not exist in all projects)
+                echo "Testing ${BINARY_NAME}..."
+                ./${BINARY_NAME} -version 2>/dev/null || echo "✓ Binary built successfully"
+
+                echo "Binary size: $(du -h ${BINARY_NAME} | cut -f1)"
+                echo ""
+              done
             fi
           else
             echo "No cmd/ directory found, building from root"
-            BUILD_PATH="."
+            BINARY_NAME="${ARCHIVE_NAME}"
+            go build -v -ldflags="-w -s -X main.Version=${VERSION}" -o "${BINARY_NAME}" .
+            chmod +x "${BINARY_NAME}"
           fi
 
-          echo "Building ${BINARY_NAME} with version ${VERSION} from ${BUILD_PATH}"
-          go build -v -ldflags="-w -s -X main.Version=${VERSION}" -o "${BINARY_NAME}" ${BUILD_PATH}
-          chmod +x "${BINARY_NAME}"
+          # Create archive with all binaries
+          echo "📦 Creating archive ${ARCHIVE_NAME}.tar.gz"
+          if [ ${#CMD_DIRS[@]} -gt 0 ]; then
+            # Package all cmd binaries
+            BINARIES=""
+            for CMD_DIR in "${CMD_DIRS[@]}"; do
+              CMD_NAME=$(basename "$CMD_DIR")
+              BINARIES="$BINARIES $CMD_NAME"
+            done
+            tar -czf "${ARCHIVE_NAME}.tar.gz" $BINARIES
+          else
+            tar -czf "${ARCHIVE_NAME}.tar.gz" "${BINARY_NAME}"
+          fi
 
-          # Try to run with -version flag (may not exist in all projects)
-          ./${BINARY_NAME} -version || echo "Binary built successfully (no -version flag)"
-
-          tar -czf "${BINARY_NAME}.tar.gz" "${BINARY_NAME}"
-          sha256sum "${BINARY_NAME}.tar.gz" > "${BINARY_NAME}.tar.gz.sha256"
-          echo "Binary size: $(du -h ${BINARY_NAME} | cut -f1)"
-          echo "Archive size: $(du -h ${BINARY_NAME}.tar.gz | cut -f1)"
+          sha256sum "${ARCHIVE_NAME}.tar.gz" > "${ARCHIVE_NAME}.tar.gz.sha256"
+          echo "Archive size: $(du -h ${ARCHIVE_NAME}.tar.gz | cut -f1)"
+          echo ""
+          echo "✅ Archive contents:"
+          tar -tzf "${ARCHIVE_NAME}.tar.gz"
 
       - name: Upload binary artifacts
         uses: actions/upload-artifact@v6

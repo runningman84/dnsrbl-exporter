@@ -60,6 +60,11 @@ func main() {
 }
 
 func checkDNSBL(blacklist string) bool {
+	// Validate input
+	if blacklist == "" {
+		return false
+	}
+
 	// Use 127.0.0.2 as test IP - should return NXDOMAIN for most lists
 	// We're just checking if the DNS server responds
 	testQuery := fmt.Sprintf("2.0.0.127.%s", blacklist)
@@ -84,12 +89,8 @@ func checkDNSBL(blacklist string) bool {
 				return false
 			}
 		}
-		// Try a direct NS lookup as fallback
-		ctx2, cancel2 := context.WithTimeout(context.Background(), 5*time.Second)
-		defer cancel2()
-
-		_, err2 := resolver.LookupNS(ctx2, blacklist)
-		return err2 == nil
+		// For other errors, the server is likely not working
+		return false
 	}
 
 	// Got an IP response - that's also good
