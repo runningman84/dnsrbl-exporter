@@ -14,7 +14,6 @@ COPY go.mod go.sum ./
 
 # Copy source code (needed for go mod tidy to resolve all dependencies)
 COPY cmd/ cmd/
-COPY pkg/ pkg/
 
 # Download dependencies and populate go.sum with all transitive dependencies
 RUN go mod download && go mod tidy
