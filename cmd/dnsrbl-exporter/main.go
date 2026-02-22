@@ -125,7 +125,6 @@ func main() {
 		os.Exit(0)
 	}
 
-
 	config := loadConfig()
 
 	// Start Prometheus HTTP server
