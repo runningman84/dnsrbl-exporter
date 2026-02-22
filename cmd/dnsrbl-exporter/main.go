@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"context"
+	"flag"
 	"fmt"
 	"io"
 	"log"
@@ -17,6 +18,9 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promauto"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
+
+// Version is set at build time via ldflags
+var Version = "dev"
 
 var (
 	errorMapping = map[string]float64{
@@ -112,7 +116,14 @@ type Config struct {
 }
 
 func main() {
-	log.SetFlags(log.LstdFlags)
+	// Parse command-line flags
+	versionFlag := flag.Bool("version", false, "Print version and exit")
+	flag.Parse()
+
+	if *versionFlag {
+		fmt.Printf("dnsrbl-exporter version %s\n", Version)
+		os.Exit(0)
+	}
 
 	config := loadConfig()
 
