@@ -8,7 +8,21 @@ dnsrbl-exporter
 
 Introduction
 ----
-This project is a dns realtime blacklist checker with a prometheus endpoint.
+This project is a dns realtime blacklist checker with a prometheus endpoint. Written in Go.
+
+Building
+----
+
+```sh
+go build -o dnsrbl-exporter
+```
+
+Running Locally
+----
+
+```sh
+./dnsrbl-exporter
+```
 
 Install
 ----

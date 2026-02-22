@@ -5,7 +5,6 @@ access.redhawk.org
 all.rbl.jp
 all.spam-rbl.fr
 all.spamrats.com
-aspews.ext.sorbs.net
 b.barracudacentral.org
 backscatter.spameatingmonkey.net
 badnets.spameatingmonkey.net
@@ -43,7 +42,7 @@ dnsbl.aspnet.hu
 dnsbl.inps.de
 dnsbl.justspam.org
 dnsbl.kempt.net
-dnsbl.madavi.de
+#dnsbl.madavi.de
 dnsbl.rizon.net
 dnsbl.rv-soft.info
 dnsbl.rymsho.ru
@@ -93,7 +92,7 @@ spam.dnsbl.anonmails.de
 spam.pedantic.org
 spam.rbl.blockedservers.com
 spam.rbl.msrbl.net
-spam.spamrats.com
+#spam.spamrats.com
 spamrbl.imp.ch
 spamsources.fabel.dk
 st.technovision.dk
