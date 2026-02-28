@@ -4,6 +4,7 @@
     "config:base"
   ],
   "semanticCommits": "enabled",
+  "semanticCommitType": "fix",
   "commitMessagePrefix": "",
   "commitMessageAction": "update",
   "commitMessageTopic": "{{depName}}",
