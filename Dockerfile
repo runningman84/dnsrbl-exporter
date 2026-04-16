@@ -22,7 +22,7 @@ RUN go mod download && go mod tidy
 RUN CGO_ENABLED=0 GOOS=linux go build -v -ldflags="-w -s -X main.Version=${VERSION}" -o dnsrbl-exporter ./cmd/dnsrbl-exporter
 
 # Runtime stage
-FROM alpine:3.23.3
+FROM alpine:3.23.4
 
 # Install ca-certificates for HTTPS connections
 RUN apk --no-cache add ca-certificates
