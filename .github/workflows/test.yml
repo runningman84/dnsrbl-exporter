@@ -71,7 +71,7 @@ jobs:
         if: steps.helm-check.outputs.helm_exists == 'true'
         uses: azure/setup-helm@v5
         with:
-          version: 'v3.13.2'
+          version: 'v3.21.2'
 
       - name: Test Helm chart
         if: steps.helm-check.outputs.helm_exists == 'true'
