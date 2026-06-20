@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Set up Go
         uses: actions/setup-go@v6
@@ -71,7 +71,7 @@ jobs:
         if: steps.helm-check.outputs.helm_exists == 'true'
         uses: azure/setup-helm@v5
         with:
-          version: 'v3.21.2'
+          version: 'v4.2.2'
 
       - name: Test Helm chart
         if: steps.helm-check.outputs.helm_exists == 'true'
